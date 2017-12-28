@@ -35,35 +35,34 @@ function Rect(x, y, width, height) {
   this.height = height;
 }
 
-var Popover = React.createClass({
-  propTypes: {
+class Popover extends React.Component {
+  static propTypes = {
     isVisible: PropTypes.bool,
     onClose: PropTypes.func,
-  },
-  getInitialState() {
-    return {
-      contentSize: {},
-      anchorPoint: {},
-      popoverOrigin: {},
-      placement: 'auto',
-      isTransitioning: false,
-      defaultAnimatedValues: {
-        scale: new Animated.Value(0),
-        translate: new Animated.ValueXY(),
-        fade: new Animated.Value(0),
-      },
-    };
-  },
-  getDefaultProps() {
-    return {
-      isVisible: false,
-      displayArea: new Rect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT),
-      arrowSize: DEFAULT_ARROW_SIZE,
-      placement: 'auto',
-      onClose: noop,
-    };
-  },
-  measureContent(x) {
+  };
+
+  static defaultProps = {
+    isVisible: false,
+    displayArea: new Rect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT),
+    arrowSize: DEFAULT_ARROW_SIZE,
+    placement: 'auto',
+    onClose: noop,
+  };
+
+  state = {
+    contentSize: {},
+    anchorPoint: {},
+    popoverOrigin: {},
+    placement: 'auto',
+    isTransitioning: false,
+    defaultAnimatedValues: {
+      scale: new Animated.Value(0),
+      translate: new Animated.ValueXY(),
+      fade: new Animated.Value(0),
+    },
+  };
+
+  measureContent = (x) => {
     var {width, height} = x.nativeEvent.layout;
     var contentSize = {width, height};
     var geom = this.computeGeometry({contentSize});
@@ -75,8 +74,9 @@ var Popover = React.createClass({
       // from the state
       isAwaitingShow && this._startAnimation({show: true});
     });
-  },
-  computeGeometry({contentSize, placement}) {
+  };
+
+  computeGeometry = ({contentSize, placement}) => {
     placement = placement || this.props.placement;
 
     var options = {
@@ -98,8 +98,9 @@ var Popover = React.createClass({
       default:
         return this.computeAutoGeometry(options);
     }
-  },
-  computeTopGeometry({displayArea, fromRect, contentSize, arrowSize}) {
+  };
+
+  computeTopGeometry = ({displayArea, fromRect, contentSize, arrowSize}) => {
     var popoverOrigin = new Point(
       Math.min(displayArea.x + displayArea.width - contentSize.width,
         Math.max(displayArea.x, fromRect.x + (fromRect.width - contentSize.width) / 2)),
@@ -111,8 +112,9 @@ var Popover = React.createClass({
       anchorPoint,
       placement: 'top',
     }
-  },
-  computeBottomGeometry({displayArea, fromRect, contentSize, arrowSize}) {
+  };
+
+  computeBottomGeometry = ({displayArea, fromRect, contentSize, arrowSize}) => {
     var popoverOrigin = new Point(
       Math.min(displayArea.x + displayArea.width - contentSize.width,
         Math.max(displayArea.x, fromRect.x + (fromRect.width - contentSize.width) / 2)),
@@ -124,8 +126,9 @@ var Popover = React.createClass({
       anchorPoint,
       placement: 'bottom',
     }
-  },
-  computeLeftGeometry({displayArea, fromRect, contentSize, arrowSize}) {
+  };
+
+  computeLeftGeometry = ({displayArea, fromRect, contentSize, arrowSize}) => {
     var popoverOrigin = new Point(fromRect.x - contentSize.width - arrowSize.width,
       Math.min(displayArea.y + displayArea.height - contentSize.height,
         Math.max(displayArea.y, fromRect.y + (fromRect.height - contentSize.height) / 2)));
@@ -136,8 +139,9 @@ var Popover = React.createClass({
       anchorPoint,
       placement: 'left',
     }
-  },
-  computeRightGeometry({displayArea, fromRect, contentSize, arrowSize}) {
+  };
+
+  computeRightGeometry = ({displayArea, fromRect, contentSize, arrowSize}) => {
     var popoverOrigin = new Point(fromRect.x + fromRect.width + arrowSize.width,
       Math.min(displayArea.y + displayArea.height - contentSize.height,
         Math.max(displayArea.y, fromRect.y + (fromRect.height - contentSize.height) / 2)));
@@ -148,8 +152,9 @@ var Popover = React.createClass({
       anchorPoint,
       placement: 'right',
     }
-  },
-  computeAutoGeometry({displayArea, contentSize}) {
+  };
+
+  computeAutoGeometry = ({displayArea, contentSize}) => {
     var placementsToTry = ['left', 'right', 'bottom', 'top'];
 
     for (var i = 0; i < placementsToTry.length; i++) {
@@ -166,8 +171,9 @@ var Popover = React.createClass({
     }
 
     return geom;
-  },
-  getArrowSize(placement) {
+  };
+
+  getArrowSize = (placement) => {
     var size = this.props.arrowSize;
     switch(placement) {
       case 'left':
@@ -176,11 +182,13 @@ var Popover = React.createClass({
       default:
         return size;
     }
-  },
-  getArrowColorStyle(color) {
+  };
+
+  getArrowColorStyle = (color) => {
     return { borderTopColor: color };
-  },
-  getArrowRotation(placement) {
+  };
+
+  getArrowRotation = (placement) => {
     switch (placement) {
       case 'bottom':
         return '180deg';
@@ -191,8 +199,9 @@ var Popover = React.createClass({
       default:
         return '0deg';
     }
-  },
-  getArrowDynamicStyle() {
+  };
+
+  getArrowDynamicStyle = () => {
     var {anchorPoint, popoverOrigin} = this.state;
     var arrowSize = this.props.arrowSize;
 
@@ -213,13 +222,15 @@ var Popover = React.createClass({
       borderBottomWidth: height / 2,
       borderLeftWidth: width / 2,
     }
-  },
-  getTranslateOrigin() {
+  };
+
+  getTranslateOrigin = () => {
     var {contentSize, popoverOrigin, anchorPoint} = this.state;
     var popoverCenter = new Point(popoverOrigin.x + contentSize.width / 2,
       popoverOrigin.y + contentSize.height / 2);
     return new Point(anchorPoint.x - popoverCenter.x, anchorPoint.y - popoverCenter.y);
-  },
+  };
+
   componentWillReceiveProps(nextProps:any) {
     var willBeVisible = nextProps.isVisible;
     var {
@@ -235,13 +246,15 @@ var Popover = React.createClass({
         this._startAnimation({show: false});
       }
     }
-  },
-  _startAnimation({show}) {
+  }
+
+  _startAnimation = ({show}) => {
     var handler = this.props.startCustomAnimation || this._startDefaultAnimation;
     handler({show, doneCallback: () => this.setState({isTransitioning: false})});
     this.setState({isTransitioning: true});
-  },
-  _startDefaultAnimation({show, doneCallback}) {
+  };
+
+  _startDefaultAnimation = ({show, doneCallback}) => {
     var animDuration = 300;
     var values = this.state.defaultAnimatedValues;
     var translateOrigin = this.getTranslateOrigin();
@@ -269,8 +282,9 @@ var Popover = React.createClass({
         ...commonConfig,
       })
     ]).start(doneCallback);
-  },
-  _getDefaultAnimatedStyles() {
+  };
+
+  _getDefaultAnimatedStyles = () => {
     // If there's a custom animation handler,
     // we don't return the default animated styles
     if (typeof this.props.startCustomAnimation !== 'undefined') {
@@ -302,8 +316,9 @@ var Popover = React.createClass({
         ],
       }
     };
-  },
-  _getExtendedStyles() {
+  };
+
+  _getExtendedStyles = () => {
     var background = [];
     var popover = [];
     var arrow = [];
@@ -324,7 +339,8 @@ var Popover = React.createClass({
       arrow,
       content,
     }
-  },
+  };
+
   render() {
     if (!this.props.isVisible && !this.state.isTransitioning) {
         return null;
@@ -361,7 +377,7 @@ var Popover = React.createClass({
       </TouchableWithoutFeedback>
     );
   }
-});
+}
 
 
 var styles = StyleSheet.create({
